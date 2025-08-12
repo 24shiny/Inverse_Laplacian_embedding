@@ -1,10 +1,8 @@
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import normalize
 from sklearn.metrics import pairwise_distances
 from sklearn.metrics import silhouette_score as ss
-from sklearn.metrics import adjusted_rand_score as ars
 from sklearn.cluster import KMeans
 from sklearn.manifold import SpectralEmbedding as se
 
@@ -34,5 +32,3 @@ class Conventional_LE:
         plt.scatter(self.emb_X[:, 0], self.emb_X[:, 1], c=self.Y, cmap='viridis', s=30, alpha=0.8)
         plt.title(f'Data on LE with score {self.score}')
         plt.show()
-        
-        
