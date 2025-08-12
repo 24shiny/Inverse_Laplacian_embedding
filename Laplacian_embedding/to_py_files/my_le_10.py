@@ -11,7 +11,7 @@ from itertools import combinations as cb
 class My_LE:
     """Laplacian embedding with inverse power method and deflation"""
     def __init__(self):
-        """variables initialized w.r.t an example dataset:make_blobs"""
+        """Initialize variables w.r.t an example dataset:make_blobs"""
         X, Y = datasets.make_blobs(n_samples=256, centers=4, random_state=42)
         self.X = X # data
         self.n_centers = 4
@@ -25,6 +25,7 @@ class My_LE:
         self.embed_data()
 
     def plot_example_data(self):
+        """"Plot the example data:make_blobs"""
         plt.scatter(self.X[:, 0], self.X[:, 1], c=self.Y, cmap='viridis', s=30, alpha=0.8)
         plt.xlabel('Feature 1')
         plt.ylabel('Feature 2')
@@ -32,14 +33,17 @@ class My_LE:
         plt.show()        
     
     def get_data(self, X, n_centers):
+        """Updata data"""
         self.X = X
         self.n_centers = n_centers
 
     def get_label(self, Y):
+        """Update labels"""
         self.Y = Y
 
     @staticmethod
     def power_method(A):
+        """Return a dominant eigenpair"""
         num_iter=200
         tol=1e-6
         n = A.shape[0]
@@ -61,10 +65,11 @@ class My_LE:
         
     @staticmethod
     def deflation(A, eig_val, eig_vec):
+        """Shift the eigenspace, while removing the effect of the eigenpair"""
         return A - eig_val * np.outer(eig_vec, eig_vec)
         
     def core_routine(self):
-        # matrices
+        """Create matricies A, D, L and L inverse and Perform power and deflation method"""
         Adj = np.exp(-pairwise_distances(self.X, metric='euclidean'))
         D = np.diag(np.sum(Adj, axis=1))
         L = D - Adj
@@ -89,11 +94,13 @@ class My_LE:
     
     @staticmethod
     def get_score(x): # ss or ard
+        """Calculate the Silhouette_score w.r.t data embedded on LE"""
         km = KMeans(n_clusters=4, random_state=42).fit(x)
         label_predicted = km.fit_predict(x)
         return ss(x, label_predicted), label_predicted
     
     def get_best_le(self):
+        """Find the best combination of eigenvectors of L inverse"""
         elem = range(len(self.def_vec))
         all_cb = list(cb(elem,2))
         score_list = []
@@ -109,6 +116,7 @@ class My_LE:
         self.Y = label_list[best_idx]
    
     def plot_embedded_X(self):
+        """Plot data embedded on LE"""
         i = self.pair[0]
         j = self.pair[1]
         plt.scatter(self.def_vec[i], self.def_vec[j], c=self.Y, cmap='viridis', s=30, alpha=0.8)
@@ -116,6 +124,7 @@ class My_LE:
         plt.show()
 
     def embed_data(self):
+        """Execute major routines"""
         self.core_routine() # def_vec, def_val
         self.get_best_le() # pair, score, Y
         self.plot_embedded_X()
