@@ -217,8 +217,7 @@ class My_quantum_LE:
             self.def_vec.append(eig_vec)
             self.def_mat = self.deflation(self.def_mat, eig_val, eig_vec)
             self.update_circuit_config()
-###
-    
+
     def get_score(self, x):
         """Calculate the Silhouette_score w.r.t data embedded on LE"""
         km = KMeans(n_clusters=self.n_centers, random_state=42).fit(x)
