@@ -10,6 +10,7 @@ from itertools import combinations as cb
 
 class My_LE:
     """Laplacian embedding with inverse power method and deflation"""
+    label_flag = 0
     def __init__(self):
         """Initialize variables w.r.t an example dataset:make_blobs"""
         X, Y = datasets.make_blobs(n_samples=256, centers=4, random_state=42)
@@ -40,6 +41,7 @@ class My_LE:
     def get_label(self, Y):
         """Update labels"""
         self.Y = Y
+        self.label_flag = 1
 
     @staticmethod
     def power_method(A):
@@ -119,7 +121,10 @@ class My_LE:
         """Plot data embedded on LE without labels"""
         i = self.pair[0]
         j = self.pair[1]
-        plt.scatter(self.def_vec[i], self.def_vec[j], c=self.Y, s=30, alpha=0.8)
+        if self.label_flag == 0: 
+            plt.scatter(self.def_vec[i], self.def_vec[j], s=30, alpha=0.8) # w/o labels colored
+        else:
+            plt.scatter(self.def_vec[i], self.def_vec[j], c=self.Y, s=30, alpha=0.8) # w/ labels colored
         plt.title(f'Data on LE with score {self.score}')
         plt.show()
         
