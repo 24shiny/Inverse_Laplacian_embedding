@@ -4,6 +4,7 @@ from scipy.linalg import eigh
 from sklearn import datasets
 from sklearn.preprocessing import normalize
 from sklearn.metrics import pairwise_distances
+from sklearn.metrics import adjusted_rand_score as ars
 from sklearn.metrics import silhouette_score as ss
 from sklearn.cluster import KMeans
 from itertools import combinations as cb
@@ -16,6 +17,7 @@ class My_LE:
         self.X = X # data
         self.n_centers = 4
         self.Y = Y 
+        self.eval_metric = 'ss'
         self.score = -1
         self.score_list = []
         self.pair = None
@@ -34,12 +36,12 @@ class My_LE:
         plt.title('Original data')
         plt.show()        
     
-    def get_data(self, X, n_centers):
+    def set_data(self, X, n_centers):
         """Updata data"""
         self.X = X
         self.n_centers = n_centers
 
-    def get_label(self, Y):
+    def set_label(self, Y):
         """Update labels"""
         self.Y = Y
 
@@ -99,7 +101,13 @@ class My_LE:
         """Calculate the Silhouette_score w.r.t data embedded on LE"""
         km = KMeans(n_clusters=self.n_centers, random_state=42).fit(x)
         label_predicted = km.fit_predict(x)
-        return ss(x, label_predicted), label_predicted
+        try:
+            if self.eval_metric == 'ss':
+                return ss(x, label_predicted), label_predicted
+            elif self.eval_metric == 'ars':
+                return ars(self.Y, label_predicted), label_predicted
+        except:
+            print('Set eval_metric as either ss or ars')
     
     def get_best_le(self):
         """Find the best combination of eigenvectors of L inverse"""
