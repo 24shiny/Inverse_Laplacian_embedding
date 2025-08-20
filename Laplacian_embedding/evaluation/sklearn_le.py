@@ -4,6 +4,7 @@ from sklearn import datasets
 from sklearn.preprocessing import normalize
 from sklearn.metrics import pairwise_distances
 from sklearn.metrics import silhouette_score as ss
+from sklearn.metrics import adjusted_rand_score as ars
 from sklearn.cluster import KMeans
 from sklearn.manifold import SpectralEmbedding as se
 
@@ -14,10 +15,13 @@ class Sklearn_LE:
         X, Y = datasets.make_blobs(n_samples=256, centers=4, random_state=42)
         self.X = X # data
         self.n_centers = 4
-        self.Y = Y 
+        self.Y = Y
+        self.Y_predicted = None
         self.emb_X = None
+        self.eval_metric = 'ss'
         self.score = -1
-        self.score_list = []
+        self.ss_score_list = []
+        self.ars_score_list = []
         # example results
         self.plot_example_data()
         self.embed_data()
@@ -30,12 +34,12 @@ class Sklearn_LE:
         plt.title('Original data')
         plt.show()        
     
-    def get_data(self, X, n_centers):
+    def set_data(self, X, n_centers):
         """Updata data"""
         self.X = X
         self.n_centers = n_centers
 
-    def get_label(self, Y):
+    def set_label(self, Y):
         """Update labels, if available"""
         self.Y = Y
         
@@ -50,10 +54,22 @@ class Sklearn_LE:
     def get_score(self):
         """Get the Silhouette score"""
         km = KMeans(n_clusters=self.n_centers, random_state=42).fit(self.X)
-        self.Y = km.fit_predict(self.X)
-        self.score = np.round(ss(self.X, self.Y),3)
-        self.score_list.append(self.score)
-    
+        label_predicted = km.fit_predict(self.X)
+        try:
+            if self.eval_metric == 'ss':
+                return ss(self.X, label_predicted), label_predicted
+            elif self.eval_metric == 'ars':
+                return ars(self.Y, label_predicted), label_predicted
+        except:
+            print('Set eval_metric as either ss or ars')
+
+    def get_score(self):
+        """Get the Silhouette score"""
+        km = KMeans(n_clusters=self.n_centers, random_state=42).fit(self.X)
+        self.Y_predicted = km.fit_predict(self.X) 
+        self.ss_score_list.append(np.round(ss(self.X, self.Y_predicted),3))
+        self.ars_score_list.append(np.round(ars(self.Y, self.Y_predicted),3))
+        
     def plot_embedded_X(self):
         """Plot the data embedded on LE"""
         if self.Y is None:
